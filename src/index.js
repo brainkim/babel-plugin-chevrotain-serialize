@@ -108,23 +108,39 @@ export default function plugin(babel) {
       if (!constructorMethod) {
         return;
       }
-      const performSelfAnalysisExpression = constructorMethod.body.body.find(
-        (node) =>
+      const replacedBody = constructorMethod.body.body;
+        
+      const grammar = this.serializedGrammars[className];
+      replacedBody.forEach((node) => {
+        if (
           t.isExpressionStatement(node) &&
           t.isCallExpression(node.expression) &&
           t.isMemberExpression(node.expression.callee) &&
-          node.expression.callee.property.name === "performSelfAnalysis",
-      );
-      if (!performSelfAnalysisExpression) {
-        return;
-      }
-      const grammar = this.serializedGrammars[className];
-      performSelfAnalysisExpression.expression.arguments = [
-        t.callExpression(
-          t.memberExpression(t.identifier("JSON"), t.identifier("parse")),
-          [t.stringLiteral(JSON.stringify(grammar))],
-        ),
-      ];
+          t.isThisExpression(node.expression.callee.object) && 
+          t.isIdentifier(node.expression.callee.property) && 
+          node.expression.callee.property.name === "RULE"
+        ) {
+          node.expression.arguments = node.expression.arguments.slice(0, 1);
+        } else if (
+          t.isExpressionStatement(node) &&
+          t.isCallExpression(node.expression) &&
+          t.isMemberExpression(node.expression.callee) &&
+          node.expression.callee.property.name === "performSelfAnalysis"
+        ) {
+          node.expression.arguments.push(
+            t.objectExpression([
+              t.objectProperty(
+                t.identifier("serializedGrammar"),
+                t.callExpression(
+                  t.memberExpression(t.identifier("JSON"), t.identifier("parse")),
+                  [t.stringLiteral(JSON.stringify(grammar))],
+                ),
+              ),
+            ]),
+          );
+        }
+      });
+      constructorMethod.body.body = replacedBody;
     },
   };
 
@@ -175,3 +191,27 @@ export default function plugin(babel) {
     },
   };
 }
+
+// import { transform } from "@babel/core";
+// const code = `
+// import { Parser, createToken } from "chevrotain";
+// const Comma = createToken({
+//   name: "Comma",
+//   pattern: /,/,
+// });
+// class MyParser extends Parser {
+//   constructor() {
+//     super([], [Comma]);
+//     this.RULE("hi", () => {
+//       this.CONSUME(Comma);
+//     });
+//     this.performSelfAnalysis();
+//   }
+// }
+// `;
+// import path from "path";
+// const transformedCode = transform(code, {
+//   extends: path.resolve(__dirname, "../.babelrc"),
+//   plugins: [plugin],
+// }).code;
+// console.log(transformedCode);
