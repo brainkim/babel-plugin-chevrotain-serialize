@@ -108,39 +108,31 @@ export default function plugin(babel) {
       if (!constructorMethod) {
         return;
       }
-      const replacedBody = constructorMethod.body.body;
-        
+      const superExpression = constructorMethod.body.body.find(
+        (node) =>
+          t.isExpressionStatement(node) &&
+          t.isCallExpression(node.expression) &&
+          t.isSuper(node.expression.callee),
+      );
+      if (!superExpression) {
+        return;
+      }
       const grammar = this.serializedGrammars[className];
-      replacedBody.forEach((node) => {
-        if (
-          t.isExpressionStatement(node) &&
-          t.isCallExpression(node.expression) &&
-          t.isMemberExpression(node.expression.callee) &&
-          t.isThisExpression(node.expression.callee.object) && 
-          t.isIdentifier(node.expression.callee.property) && 
-          node.expression.callee.property.name === "RULE"
-        ) {
-          node.expression.arguments = node.expression.arguments.slice(0, 1);
-        } else if (
-          t.isExpressionStatement(node) &&
-          t.isCallExpression(node.expression) &&
-          t.isMemberExpression(node.expression.callee) &&
-          node.expression.callee.property.name === "performSelfAnalysis"
-        ) {
-          node.expression.arguments.push(
-            t.objectExpression([
-              t.objectProperty(
-                t.identifier("serializedGrammar"),
-                t.callExpression(
-                  t.memberExpression(t.identifier("JSON"), t.identifier("parse")),
-                  [t.stringLiteral(JSON.stringify(grammar))],
-                ),
-              ),
-            ]),
-          );
-        }
-      });
-      constructorMethod.body.body = replacedBody;
+      const config = superExpression.expression.arguments[2];
+      const serializedGrammarProperty = t.objectProperty(
+        t.identifier("serializedGrammar"),
+        t.callExpression(
+          t.memberExpression(t.identifier("JSON"), t.identifier("parse")),
+          [t.stringLiteral(JSON.stringify(grammar))],
+        ),
+      );
+      if (!config) {
+        superExpression.expression.arguments.push(
+          t.objectExpression([serializedGrammarProperty]),
+        );
+      } else if (t.isObjectExpression(config)) {
+        config.properties.push(serializedGrammarProperty);
+      }
     },
   };
 
