@@ -96,7 +96,7 @@ export default function plugin(babel) {
     },
   };
 
-  const insertSerializedGAstVisitor = {
+  const insertSerializedGrammarVisitor = {
     Class(path) {
       if (!inheritsFromClassNames(path.node, this.parserClassNames)) {
         return;
@@ -108,17 +108,17 @@ export default function plugin(babel) {
       if (!constructorMethod) {
         return;
       }
-      const superExpression = constructorMethod.body.body.find(
+      const superExpressionStatement = constructorMethod.body.body.find(
         (node) =>
           t.isExpressionStatement(node) &&
           t.isCallExpression(node.expression) &&
           t.isSuper(node.expression.callee),
       );
-      if (!superExpression) {
+      if (!superExpressionStatement) {
         return;
       }
       const grammar = this.serializedGrammars[className];
-      const config = superExpression.expression.arguments[2];
+      const config = superExpressionStatement.expression.arguments[2];
       const serializedGrammarProperty = t.objectProperty(
         t.identifier("serializedGrammar"),
         t.callExpression(
@@ -127,7 +127,7 @@ export default function plugin(babel) {
         ),
       );
       if (!config) {
-        superExpression.expression.arguments.push(
+        superExpressionStatement.expression.arguments.push(
           t.objectExpression([serializedGrammarProperty]),
         );
       } else if (t.isObjectExpression(config)) {
@@ -175,7 +175,7 @@ export default function plugin(babel) {
           },
           {},
         );
-        path.traverse(insertSerializedGAstVisitor, {
+        path.traverse(insertSerializedGrammarVisitor, {
           serializedGrammars,
           parserClassNames,
         });
