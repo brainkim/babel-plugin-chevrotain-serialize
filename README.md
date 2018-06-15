@@ -1,1 +1,1 @@
-# babel-plugin-chevrotain-pre-analysis
+# babel-plugin-serialize-chevrotain-parsers

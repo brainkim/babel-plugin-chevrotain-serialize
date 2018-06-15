@@ -1,8 +1,8 @@
 import requireFromString from "require-from-string";
+import { declare } from "@babel/helper-plugin-utils";
 
 const PARSERS_EXPORT_NAME = "_______PARSERS_______";
-
-export default function plugin(babel) {
+const plugin = declare((babel) => {
   const { types: t, transformFromAstSync, traverse } = babel;
   const identifyParserImportsVisitor = {
     ImportDeclaration(path) {
@@ -11,21 +11,17 @@ export default function plugin(babel) {
         path.node.source.value === "chevrotain"
       ) {
         const parserClassNames = path.node.specifiers
-          .filter((specifier) => {
-            return (
-              (t.isImportSpecifier(specifier) &&
-                specifier.imported.name === "Parser") ||
-              specifier.type === "ImportDefaultSpecifier"
-            );
-          })
           .map((specifier) => {
-            switch (specifier.type) {
-              case "ImportSpecifier":
-                return specifier.local.name;
-              case "ImportDefaultSpecifier":
-                return specifier.local.name + ".Parser";
-            }
-          });
+            if (
+              t.isImportSpecifier(specifier) &&
+              specifier.imported.name === "Parser"
+            ) {
+              return specifier.local.name;
+            } else if (t.isImportNamespaceSpecifier(specifier)) {
+              return specifier.local.name + ".Parser";
+            } 
+          })
+          .filter((name) => name);
         this.addParserClassNames(parserClassNames);
       }
     },
@@ -156,21 +152,25 @@ export default function plugin(babel) {
           { parserClassNames },
           path,
         );
-        let code = transformFromAstSync(
+        const { code } = transformFromAstSync(
           fileWithExportedParsers,
           null,
           state.file.opts,
-        ).code;
+        );
         const { [PARSERS_EXPORT_NAME]: parsers } = requireFromString(`
+          // dunno if this is a good idea tbh 👻
           require("@babel/register");
+          function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+          function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
           ${code}
         `);
         const serializedGrammars = Object.keys(parsers).reduce(
           (serializedGrammars, key) => {
             const parser = new parsers[key]([]);
+            const grammar = parser.getSerializedGastProductions();
             return {
               ...serializedGrammars,
-              [key]: parser.getSerializedGastProductions(),
+              [key]: grammar,
             };
           },
           {},
@@ -182,9 +182,11 @@ export default function plugin(babel) {
       },
     },
   };
-}
+});
+export default plugin;
 
-// import { transform } from "@babel/core";
+
+import { transform } from "@babel/core";
 // const code = `
 // import { Parser, createToken } from "chevrotain";
 // const Comma = createToken({
