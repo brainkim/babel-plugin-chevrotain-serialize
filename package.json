@@ -1,6 +1,6 @@
 {
   "name": "babel-plugin-chevrotain-serialize",
-  "version": "0.1.0-alpha",
+  "version": "0.1.0",
   "main": "lib/index.js",
   "author": "Brian Kim",
   "license": "MIT",
