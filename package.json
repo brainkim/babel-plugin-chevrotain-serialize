@@ -3,7 +3,7 @@
   "version": "0.1.0-alpha",
   "main": "lib/index.js",
   "author": "Brian Kim",
-  "license": "Apache-2.0",
+  "license": "MIT",
   "scripts": {
     "test": "mocha --require @babel/polyfill --require @babel/register",
     "lint": "eslint src",
