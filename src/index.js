@@ -157,9 +157,18 @@ const plugin = declare((babel) => {
           null,
           state.file.opts,
         );
+
         const { [PARSERS_EXPORT_NAME]: parsers } = requireFromString(`
           // dunno if this is a good idea tbh 👻
-          require("@babel/register");
+          try {
+            require("@babel/register");
+          } catch (err) {
+            try {
+              require("babel-register");
+            } catch (err) {
+            }
+          }
+          // these functions are called but undefined for some reason 😥
           function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
           function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
           ${code}
