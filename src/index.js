@@ -159,6 +159,7 @@ const plugin = declare((babel) => {
           state.file.opts,
         );
 
+        clearCache();
         const { [PARSERS_EXPORT_NAME]: parsers } = requireFromString(`
           // dunno if this is a good idea tbh 👻
           try {
