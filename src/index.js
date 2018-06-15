@@ -1,5 +1,6 @@
 import requireFromString from "require-from-string";
 import { declare } from "@babel/helper-plugin-utils";
+import { clearCache } from "chevrotain";
 
 const PARSERS_EXPORT_NAME = "_______PARSERS_______";
 const plugin = declare((babel) => {
@@ -168,7 +169,7 @@ const plugin = declare((babel) => {
             } catch (err) {
             }
           }
-          // these functions are called but undefined for some reason 😥
+          // these functions are called but sometimes undefined for some reason 😥
           function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
           function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
           ${code}
@@ -184,6 +185,7 @@ const plugin = declare((babel) => {
           },
           {},
         );
+        clearCache();
         path.traverse(insertSerializedGrammarVisitor, {
           serializedGrammars,
           parserClassNames,
