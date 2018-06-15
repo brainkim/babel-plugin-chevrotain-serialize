@@ -19,7 +19,7 @@ const plugin = declare((babel) => {
               return specifier.local.name;
             } else if (t.isImportNamespaceSpecifier(specifier)) {
               return specifier.local.name + ".Parser";
-            } 
+            }
           })
           .filter((name) => name);
         this.addParserClassNames(parserClassNames);
@@ -183,29 +183,5 @@ const plugin = declare((babel) => {
     },
   };
 });
+
 export default plugin;
-
-
-import { transform } from "@babel/core";
-// const code = `
-// import { Parser, createToken } from "chevrotain";
-// const Comma = createToken({
-//   name: "Comma",
-//   pattern: /,/,
-// });
-// class MyParser extends Parser {
-//   constructor() {
-//     super([], [Comma]);
-//     this.RULE("hi", () => {
-//       this.CONSUME(Comma);
-//     });
-//     this.performSelfAnalysis();
-//   }
-// }
-// `;
-// import path from "path";
-// const transformedCode = transform(code, {
-//   extends: path.resolve(__dirname, "../.babelrc"),
-//   plugins: [plugin],
-// }).code;
-// console.log(transformedCode);

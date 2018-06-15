@@ -1,13 +1,14 @@
 {
   "name": "babel-plugin-chevrotain-serialize",
-  "version": "0.1.0",
+  "version": "0.1.0-alpha",
   "main": "lib/index.js",
   "author": "Brian Kim",
   "license": "Apache-2.0",
   "scripts": {
     "test": "mocha --require @babel/polyfill --require @babel/register",
     "lint": "eslint src",
-    "build": "babel src --out-dir lib"
+    "build": "babel src --out-dir lib",
+    "prepublishOnly": "yarn run lint && yarn run test && yarn run build"
   },
   "devDependencies": {
     "@babel/cli": "7.0.0-beta.51",
