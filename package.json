@@ -3,6 +3,11 @@
   "version": "0.1.1",
   "main": "lib/index.js",
   "author": "Brian Kim",
+  "homepage": "https://github.com/brainkim/babel-plugin-chevrotain-serialize",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/brainkim/babel-plugin-chevrotain-serialize.git"
+  },
   "license": "MIT",
   "scripts": {
     "test": "mocha --require @babel/polyfill --require @babel/register",
@@ -32,6 +37,6 @@
     "require-from-string": "^2.0.2"
   },
   "peerDependencies": {
-    "chevrotain": "^3.5.0"
+    "chevrotain": "^3.6.0"
   }
 }
