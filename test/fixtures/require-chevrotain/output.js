@@ -8,7 +8,7 @@ const Comma = chevrotain.createToken({
 class MyParser extends chevrotain.Parser {
   constructor() {
     super([], [Comma], {
-      serializedGrammar: JSON.parse("[{\"type\":\"Rule\",\"name\":\"commas\",\"definition\":[{\"type\":\"Repetition\",\"definition\":[{\"type\":\"Terminal\",\"name\":\"Comma\",\"label\":\"Comma\",\"idx\":0,\"pattern\":\",\"}]}]}]")
+      serializedGrammar: JSON.parse("[{\"type\":\"Rule\",\"name\":\"commas\",\"orgText\":\"() => {\\n      this.MANY(() => {\\n        this.CONSUME(Comma);\\n      });\\n    }\",\"definition\":[{\"type\":\"Repetition\",\"idx\":0,\"definition\":[{\"type\":\"Terminal\",\"name\":\"Comma\",\"label\":\"Comma\",\"idx\":0,\"pattern\":\",\"}]}]}]")
     });
     this.RULE("commas", () => {
       this.MANY(() => {

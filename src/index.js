@@ -1,6 +1,5 @@
 import requireFromString from "require-from-string";
 import { declare } from "@babel/helper-plugin-utils";
-import { clearCache } from "chevrotain";
 
 const PARSERS_EXPORT_NAME = "_______PARSERS_______";
 const plugin = declare((babel) => {
@@ -136,6 +135,10 @@ const plugin = declare((babel) => {
   return {
     visitor: {
       Program(path, state) {
+        // NOTE: we need a `generated` flag check here b/c in babel v7.0.0-rc the Program visitor will be called when transformFromAstSync is called, throwing the compiler into an infinite loop. 🙄 Thanks babel.
+        if (path.parent.generated) {
+          return;
+        }
         const parserClassNames = [];
         path.traverse(identifyParserImportsVisitor, {
           addParserClassNames(names) {
@@ -146,6 +149,7 @@ const plugin = declare((babel) => {
           return;
         }
         const fileWithExportedParsers = t.cloneNode(path.parent);
+        fileWithExportedParsers.generated = true;
         traverse(
           fileWithExportedParsers,
           exportParsersVisitor,
@@ -158,23 +162,9 @@ const plugin = declare((babel) => {
           null,
           state.file.opts,
         );
-
-        clearCache();
-        const { [PARSERS_EXPORT_NAME]: parsers } = requireFromString(`
-          // dunno if this is a good idea tbh 👻
-          try {
-            require("@babel/register");
-          } catch (err) {
-            try {
-              require("babel-register");
-            } catch (err) {
-            }
-          }
-          // these functions are called but sometimes undefined for some reason 😥
-          function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-          function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-          ${code}
-        `);
+        const { [PARSERS_EXPORT_NAME]: parsers } = requireFromString(
+          String(code),
+        );
         const serializedGrammars = Object.keys(parsers).reduce(
           (serializedGrammars, key) => {
             const parser = new parsers[key]([]);
@@ -186,7 +176,6 @@ const plugin = declare((babel) => {
           },
           {},
         );
-        clearCache();
         path.traverse(insertSerializedGrammarVisitor, {
           serializedGrammars,
           parserClassNames,

@@ -16,27 +16,25 @@
     "prepublishOnly": "yarn run lint && yarn run test && yarn run build"
   },
   "devDependencies": {
-    "@babel/cli": "7.0.0-beta.51",
-    "@babel/core": "^7.0.0-beta.51",
-    "@babel/node": "^7.0.0-beta.51",
-    "@babel/preset-env": "7.0.0-beta.51",
-    "@babel/preset-stage-2": "7.0.0-beta.51",
+    "@babel/cli": "^7.0.0-b",
+    "@babel/core": "^7.0.0-b",
+    "@babel/node": "^7.0.0-b",
+    "@babel/preset-env": "^7.0.0-b",
     "babel-bridge": "^1.12.11",
     "babel-core": "^7.0.0-bridge.0",
     "babel-eslint": "^8.2.3",
     "babel-plugin-tester": "^5.4.0",
-    "eslint": "^4.19.1",
-    "eslint-config-prettier": "^2.9.0",
+    "eslint": "^5.4.0",
+    "eslint-config-prettier": "^3.0.1",
     "eslint-plugin-prettier": "^2.6.0",
     "mocha": "^5.2.0",
     "prettier": "^1.12.1"
   },
   "dependencies": {
-    "@babel/helper-plugin-utils": "^7.0.0-beta.51",
-    "@babel/register": "^7.0.0-beta.51",
+    "@babel/helper-plugin-utils": "^7.0.0-b",
     "require-from-string": "^2.0.2"
   },
   "peerDependencies": {
-    "chevrotain": "^3.6.0"
+    "chevrotain": "^3.7.4"
   }
 }

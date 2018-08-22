@@ -4,14 +4,8 @@
       "@babel/preset-env",
       {
         "targets": {
-          "node": "current"
+          "node": "6"
         }
-      }
-    ],
-    [
-      "@babel/preset-stage-2",
-      {
-        "decoratorsLegacy": true
       }
     ]
   ]

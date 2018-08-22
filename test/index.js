@@ -1,6 +1,6 @@
 import path from "path";
 import pluginTester from 'babel-plugin-tester';
-import chevrotainSerializePlugin from "../lib/index";
+import chevrotainSerializePlugin from "../src/index";
 import chevrotain from "chevrotain";
 
 pluginTester({
