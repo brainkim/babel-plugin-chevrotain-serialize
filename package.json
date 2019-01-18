@@ -11,6 +11,7 @@
   "license": "MIT",
   "scripts": {
     "test": "mocha --require @babel/polyfill --require @babel/register",
+    "test:debug": "mocha --inspect-brk --require @babel/polyfill --require @babel/register",
     "lint": "eslint src",
     "build": "babel src --out-dir lib",
     "prepublishOnly": "yarn run lint && yarn run test && yarn run build"
@@ -35,6 +36,6 @@
     "require-from-string": "^2.0.2"
   },
   "peerDependencies": {
-    "chevrotain": "^3.7.4"
+    "chevrotain": "^4.1.1"
   }
 }

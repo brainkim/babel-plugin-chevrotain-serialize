@@ -19,6 +19,8 @@ const plugin = declare((babel) => {
               return specifier.local.name;
             } else if (t.isImportNamespaceSpecifier(specifier)) {
               return specifier.local.name + ".Parser";
+            } else if (t.isImportDefaultSpecifier(specifier)) {
+              return specifier.local.name + ".Parser";
             }
           })
           .filter((name) => name);
@@ -41,6 +43,15 @@ const plugin = declare((babel) => {
             .map((property) => property.value.name);
           this.addParserClassNames(parserClassNames);
         }
+      }
+    },
+  };
+
+  const identifyParserClassInherits = {
+    Class(path) {
+      if (inheritsFromClassNames(path.node, this.parserClassNames)) {
+        this.setParserClassUseFlag();
+        return;
       }
     },
   };
@@ -114,7 +125,7 @@ const plugin = declare((babel) => {
         return;
       }
       const grammar = this.serializedGrammars[className];
-      const config = superExpressionStatement.expression.arguments[2];
+      const config = superExpressionStatement.expression.arguments[1];
       const serializedGrammarProperty = t.objectProperty(
         t.identifier("serializedGrammar"),
         t.callExpression(
@@ -135,10 +146,16 @@ const plugin = declare((babel) => {
   return {
     visitor: {
       Program(path, state) {
+        function isDebug() {
+          return state.opts.options && !!state.opts.options.debug;
+        }
+
         // NOTE: we need a `generated` flag check here b/c in babel v7.0.0-rc the Program visitor will be called when transformFromAstSync is called, throwing the compiler into an infinite loop. 🙄 Thanks babel.
         if (path.parent.generated) {
           return;
         }
+
+        // Get any chevrotain.Parser class imports or requires
         const parserClassNames = [];
         path.traverse(identifyParserImportsVisitor, {
           addParserClassNames(names) {
@@ -148,6 +165,29 @@ const plugin = declare((babel) => {
         if (!parserClassNames.length) {
           return;
         }
+        if (isDebug()) {
+          console.log(
+            state.file.opts.filename,
+            "imports chevrotain via",
+            parserClassNames,
+          );
+        }
+
+        // See if anything inherits from the chevrotain.Parser class names
+        let hasParserClasses = false;
+        path.traverse(identifyParserClassInherits, {
+          setParserClassUseFlag() {
+            hasParserClasses = true;
+          },
+          parserClassNames: parserClassNames,
+        });
+        if (!hasParserClasses) {
+          if (isDebug()) {
+            console.log("   --- No Parser class inheritence, skipping");
+          }
+          return;
+        }
+
         const fileWithExportedParsers = t.cloneNode(path.parent);
         fileWithExportedParsers.generated = true;
         traverse(
@@ -164,9 +204,24 @@ const plugin = declare((babel) => {
         );
         const { [PARSERS_EXPORT_NAME]: parsers } = requireFromString(
           String(code),
+          state.file.opts.filename,
         );
+        if (!parsers) {
+          if (isDebug()) {
+            console.log("   --- No parsers found");
+          }
+          return;
+        }
+
         const serializedGrammars = Object.keys(parsers).reduce(
           (serializedGrammars, key) => {
+            if (isDebug()) {
+              console.log(
+                "   --- Adding serialized grammar to Parser class",
+                key,
+              );
+            }
+
             const parser = new parsers[key]([]);
             const grammar = parser.getSerializedGastProductions();
             return {

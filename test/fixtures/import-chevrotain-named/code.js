@@ -6,7 +6,7 @@ const Comma = createToken({
 
 class MyParser extends Parser {
   constructor() {
-    super([], [Comma]);
+    super({ Comma });
     this.RULE("commas", () => {
       this.MANY(() => {
         this.CONSUME(Comma);
