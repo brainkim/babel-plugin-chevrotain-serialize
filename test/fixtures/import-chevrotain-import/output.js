@@ -1,11 +1,22 @@
-const chevrotain = require("chevrotain");
+"use strict";
 
-const Comma = chevrotain.createToken({
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _chevrotain = _interopRequireDefault(require("chevrotain"));
+
+var _test = _interopRequireDefault(require("../../test_modules/test"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+const Comma = _chevrotain.default.createToken({
   name: "Comma",
   pattern: /,/
 });
 
-class MyParser extends chevrotain.Parser {
+class MyParser extends _chevrotain.default.Parser {
   constructor() {
     super({
       Comma
@@ -21,3 +32,8 @@ class MyParser extends chevrotain.Parser {
   }
 
 }
+
+const x = _test.default.x();
+
+var _default = MyParser;
+exports.default = _default;

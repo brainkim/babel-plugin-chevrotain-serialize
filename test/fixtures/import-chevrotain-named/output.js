@@ -31,7 +31,9 @@ function (_Parser) {
 
     _classCallCheck(this, MyParser);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(MyParser).call(this, [], [Comma], {
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(MyParser).call(this, {
+      Comma: Comma
+    }, {
       serializedGrammar: JSON.parse("[{\"type\":\"Rule\",\"name\":\"commas\",\"orgText\":\"function () {\\n      _this.MANY(function () {\\n        _this.CONSUME(Comma);\\n      });\\n    }\",\"definition\":[{\"type\":\"Repetition\",\"idx\":0,\"definition\":[{\"type\":\"Terminal\",\"name\":\"Comma\",\"label\":\"Comma\",\"idx\":0,\"pattern\":\",\"}]}]}]")
     }));
 

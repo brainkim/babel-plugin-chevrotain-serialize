@@ -1,4 +1,6 @@
-const chevrotain = require("chevrotain");
+import chevrotain from "chevrotain";
+import test from "../../test_modules/test";
+
 const Comma = chevrotain.createToken({
   name: "Comma",
   pattern: /,/,
@@ -6,7 +8,9 @@ const Comma = chevrotain.createToken({
 
 class MyParser extends chevrotain.Parser {
   constructor() {
-    super({ Comma });
+    super({
+      Comma,
+    });
     this.RULE("commas", () => {
       this.MANY(() => {
         this.CONSUME(Comma);
@@ -15,3 +19,6 @@ class MyParser extends chevrotain.Parser {
     this.performSelfAnalysis();
   }
 }
+
+const x = test.x();
+export default MyParser;

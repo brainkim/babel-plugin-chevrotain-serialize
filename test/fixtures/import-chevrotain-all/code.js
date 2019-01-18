@@ -7,7 +7,7 @@ const Comma = chevrotain.createToken({
 
 class MyParser extends chevrotain.Parser {
   constructor() {
-    super([], [Comma]);
+    super({ Comma });
     this.RULE("commas", () => {
       this.MANY(() => {
         this.CONSUME(Comma);

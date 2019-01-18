@@ -1,10 +1,11 @@
-const chevrotain = require("chevrotain");
+import * as chevrotain from "chevrotain";
+
 const Comma = chevrotain.createToken({
   name: "Comma",
   pattern: /,/,
 });
 
-class MyParser extends chevrotain.Parser {
+class MyParser {
   constructor() {
     super({ Comma });
     this.RULE("commas", () => {
