@@ -1,3 +1,7 @@
+# ⚠️ This library is deprecated ⚠️
+
+Chevrotain version 6 and later no longer uses Function.prototype.toString, obsoleting the need for this package. See https://sap.github.io/chevrotain/docs/changes/CHANGELOG.html#_6-0-0-8-20-2019 for more info.
+
 # babel-plugin-chevrotain-serialize
 
 This plugin finds class declarations which inherit from `chevrotain.Parser`, serializes them, and passes this serialization into their constructor `super` calls, allowing your code to bypass parser grammar construction at runtime. This is especially useful if you run your code through a minifier, as you’ll no longer have to avoid mangling token names.
